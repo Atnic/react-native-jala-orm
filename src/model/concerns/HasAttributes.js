@@ -161,7 +161,7 @@ const HasAttributes = function () {
    * @param {Object} mutatedAttributes
    */
   this._addCastAttributesToArray = function (attributes, mutatedAttributes) {
-    this.getCasts().forEach((value, key) => {
+    _.forEach()this.getCasts().forEach((value, key) => {
       if (!(key in attributes) || mutatedAttributes.includes(key)) {
         return
       }
