@@ -50,7 +50,10 @@ class ConnectionResolver {
    * @param {Connection} connection
    */
   addConnection (name, connection) {
-    this._connections[name] = connection
+    this._connections = {
+      ...this._connections,
+      [name]: connection
+    }
   }
 
   /**

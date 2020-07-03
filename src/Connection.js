@@ -4,6 +4,7 @@ import DetectsDeadlocks from './DetectsDeadlocks'
 import DetectsLostConnections from './DetectsLostConnections'
 import ManagesTransactions from './concerns/ManagesTransactions'
 import Builder from './query/Builder'
+import Expression from './query/Expression'
 import QueryGrammar from './query/grammars/Grammar'
 import QueryProcessor from './query/processors/Processor'
 
@@ -809,12 +810,12 @@ class Connection {
   /**
    * Get a new raw query expression.
    *
-   * @param  {String|QueryExpression}  value
-   * @return {QueryExpression}
+   * @param  {String|Expression}  value
+   * @return {Expression}
    */
   raw(value)
   {
-    return new QueryExpression(value);
+    return new Expression(value);
   }
 
   /**

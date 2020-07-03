@@ -34,7 +34,7 @@ const GuardsAttributes = function () {
    * @return {Array}
    */
   this.getFillable = function () {
-    return this._fillable
+    return [...this._fillable]
   }
 
   /**
@@ -55,7 +55,7 @@ const GuardsAttributes = function () {
    * @return {Array}
    */
   this.getGuarded = function () {
-    return this._guarded
+    return [...this._guarded]
   }
 
   /**

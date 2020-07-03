@@ -5,6 +5,51 @@ import { QueryBuilder } from '../query/Builder'
 import Relation from './relations/Relation'
 import BuildsQueries from '../concerns/BuildsQueries'
 
+const BuilderProxy = function (cls) {
+  return new Proxy(Builder, {
+    get (target, p) {
+      if (p in target) return target[p];
+      if (['macro'].includes(p) || target._macros[p] instanceof Function)
+        return new Proxy(target.__callStatic, {
+          apply (target, thisArg, argArray) {
+            return target.call(thisArg, p, argArray)
+          }
+        });
+      return null
+    }
+  })
+}
+
+const BuilderInstanceProxy = function (cls) {
+  return new Proxy(cls, {
+    get (target, p) {
+      if (p === Symbol.toStringTag) return 'Builder'
+      if (p in target || [
+        '_query',
+        '_model',
+        '_eagerLoad',
+        '_localMacros',
+        '_onDelete',
+        '_passthru',
+        '_scopes',
+        '_removedScopes'
+      ].includes(p)) return target[p];
+      if (['macro'].includes(p) ||
+        target._localMacros[p] instanceof Function ||
+        target.constructor._macros[p] instanceof Function ||
+        target._model['scope' + _.upperFirst(_.camelCase(p))] instanceof Function ||
+        target._passthru[p] instanceof Function ||
+        target._query[p] instanceof Function
+      ) return new Proxy(target.__call, {
+          apply (target, thisArg, argArray) {
+            return target.call(thisArg, p, argArray)
+          }
+        });
+      return target.__get(p)
+    }
+  })
+}
+
 /**
  * @mixes QueryBuilder
  * @mixes BuildsQueries
@@ -87,34 +132,7 @@ class Builder {
   {
     this._query = query;
 
-    return new Proxy(this, {
-      get (target, p) {
-        if (p === Symbol.toStringTag) return 'Builder'
-        if (p in target || [
-          '_query',
-          '_model',
-          '_eagerLoad',
-          '_localMacros',
-          '_onDelete',
-          '_passthru',
-          '_scopes',
-          '_removedScopes'
-        ].includes(p)) return target[p];
-        if (['macro'].includes(p) ||
-          target._localMacros[p] instanceof Function ||
-          target.constructor._macros[p] instanceof Function ||
-          target._model['scope' + _.startCase(p)] instanceof Function ||
-          target._passthru[p] instanceof Function ||
-          target._query[p] instanceof Function
-        )
-          return new Proxy(target.__call, {
-            apply (target, thisArg, argArray) {
-              return target.call(thisArg, p, argArray)
-            }
-          });
-        return target.__get(p)
-      }
-    });
+    return BuilderInstanceProxy(this);
   }
 
   /**
@@ -137,7 +155,10 @@ class Builder {
    */
   withGlobalScope(identifier, scope)
   {
-    this._scopes[identifier] = scope;
+    this._scopes = {
+      ...this._scopes,
+      [identifier]: scope
+    };
 
     if (_.isFunction(scope['extend'])) {
       scope['extend'](this);
@@ -158,9 +179,11 @@ class Builder {
       // scope = scope;
     }
 
-    delete this._scopes[scope];
+    let scopes = {...this._scopes}
+    delete scopes[scope];
+    this._scopes = {...scopes}
 
-    this._removedScopes.push(scope);
+    this._removedScopes = [...this._removedScopes, scope];
 
     return this;
   }
@@ -262,7 +285,7 @@ class Builder {
   orWhere(column, operator = null, value = null)
   {
     [value, operator] = this._query['prepareValueAndOperator'](
-      value, operator, arguments.length === 2
+      value, operator, [...arguments].length === 2
     );
 
     return this.where(column, operator, value, 'or');
@@ -692,7 +715,7 @@ class Builder {
 
     let countResults;
     do {
-      let clone = _.cloneDeep(this);
+      let clone = BuilderInstanceProxy(Object.create(Object.getPrototypeOf(this), Object.getOwnPropertyDescriptors(this)));
 
       // We'll execute the query for the given page and get the results. If there are
       // no results we can just break and return from here. When there are results
@@ -713,8 +736,6 @@ class Builder {
       }
 
       lastId = results.last()[alias]
-
-      results = undefined
     } while (countResults === count);
 
     return true;
@@ -968,7 +989,7 @@ class Builder {
       // care of grouping the "wheres" properly so the logical order doesn't get
       // messed up when adding scopes. Then we'll return back out the builder.
       builder = builder._callScope(
-          this._model['scope' + _.startCase(scope)],
+          this._model['scope' + _.upperFirst(_.camelCase(scope))],
           parameters
       )
     })
@@ -987,7 +1008,7 @@ class Builder {
       return this;
     }
 
-    let builder = _.cloneDeep(this);
+    let builder = BuilderInstanceProxy(Object.create(Object.getPrototypeOf(this), Object.getOwnPropertyDescriptors(this)));
 
     _.forEach(this._scopes, (scope, identifier) => {
       if (! (identifier in builder._scopes)) {
@@ -1114,9 +1135,9 @@ class Builder {
    */
   with(relations)
   {
-    let eagerLoad = this._parseWithRelations(relations instanceof String ? arguments : relations);
+    let eagerLoad = this._parseWithRelations(_.isString(relations) ? [...arguments] : relations);
 
-    this._eagerLoad = _.merge(this._eagerLoad, eagerLoad);
+    this._eagerLoad = {...this._eagerLoad, ...eagerLoad};
 
     return this;
   }
@@ -1259,7 +1280,7 @@ class Builder {
   /**
    * Get the relationships being eagerly loaded.
    *
-   * @return {Array}
+   * @return {Object}
    */
   getEagerLoads()
   {
@@ -1353,7 +1374,10 @@ class Builder {
   __call(method, parameters)
   {
     if (method === 'macro') {
-      this._localMacros[parameters[0]] = parameters[1];
+      this._localMacros = {
+        ...this._localMacros,
+        [parameters[0]]: parameters[1]
+      };
 
       return;
     }
@@ -1372,7 +1396,7 @@ class Builder {
       return this.constructor._macros[method].call(this, parameters);
     }
 
-    let scope = 'scope' + _.startCase(method);
+    let scope = 'scope' + _.upperFirst(_.camelCase(method));
     if (scope in this._model) {
       return this._callScope(this._model[scope], parameters);
     }
@@ -1422,24 +1446,13 @@ class Builder {
    */
   clone()
   {
-    this._query = _.cloneDeep(this._query);
+    this._query = Object.create(Object.getPrototypeOf(this._query), Object.getOwnPropertyDescriptors(this._query));
   }
 }
 
 BuildsQueries.call(Builder.prototype)
 
-Builder = new Proxy(Builder, {
-  get (target, p) {
-    if (p in target) return target[p];
-    if (['macro'].includes(p) || target._macros[p] instanceof Function)
-      return new Proxy(target.__callStatic, {
-        apply (target, thisArg, argArray) {
-          return target.call(thisArg, p, argArray)
-        }
-      });
-    return null
-  }
-});
+Builder = BuilderProxy(Builder);
 
 /**
  * @class

@@ -687,7 +687,7 @@ const HasRelationships = function () {
    * @return {Object}
    */
   this.getRelations = function () {
-    return this._relations
+    return {...this._relations}
   }
 
   /**
@@ -718,7 +718,10 @@ const HasRelationships = function () {
    * @param {*} value
    */
   this.setRelation = function (relation, value) {
-    this._relations[relation] = value
+    this._relations = {
+      ...this._relations,
+      [relation]: value
+    }
 
     return this
   }
@@ -731,7 +734,9 @@ const HasRelationships = function () {
    */
   this.unsetRelation = function(relation)
   {
-    delete this._relations[relation];
+    let relations = {...this._relations}
+    delete relations[relation];
+    this._relations = {...relations}
 
     return this;
   }

@@ -49,7 +49,7 @@ const HidesAttributes = function () {
    * @param {Array|null} attributes
    */
   this.addHidden = function (attributes = null) {
-    this._hidden = _.union(this._hidden, attributes instanceof Array ? attributes : arguments)
+    this._hidden = _.union(this._hidden, attributes instanceof Array ? attributes : [...arguments])
   }
 
   /**
@@ -80,7 +80,7 @@ const HidesAttributes = function () {
    * @param {Array|null} attributes
    */
   this.addVisible = function (attributes = null) {
-    this._visible = _.union(this._visible, attributes instanceof Array ? attributes : arguments)
+    this._visible = _.union(this._visible, attributes instanceof Array ? attributes : [...arguments])
   }
 
   /**
@@ -106,7 +106,7 @@ const HidesAttributes = function () {
    * @param {Array|String} attributes
    */
   this.makeHidden = function (attributes) {
-    attributes = attributes instanceof Array ? attributes : arguments
+    attributes = attributes instanceof Array ? attributes : [...arguments]
 
     this._visible = _.difference(this._visible, attributes)
 

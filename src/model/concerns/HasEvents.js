@@ -92,8 +92,8 @@ const HasEvents = function () {
     return [
       'retrieved', 'creating', 'created', 'updating',
       'updated', 'deleting', 'deleted', 'saving',
-      'saved', 'restoring', 'restored'
-    ].concat(this._observables)
+      'saved', 'restoring', 'restored', ...this._observables
+    ]
   }
 
   /**
@@ -115,7 +115,7 @@ const HasEvents = function () {
    * @param {Array} observables
    */
   this.addObservableEvents = function (observables) {
-    this._observables = _.uniq(this._observables.concat(observables instanceof Array ? observables : arguments))
+    this._observables = _.uniq([...this._observables, ...(observables instanceof Array ? observables : [...arguments])])
   }
 
   /**
@@ -126,7 +126,7 @@ const HasEvents = function () {
    */
   this.removeObservableEvents = function (observables) {
     this._observables = _.difference(
-      this._observables, observables instanceof Array ? observables : arguments
+      this._observables, observables instanceof Array ? observables : [...arguments]
     )
   }
 

@@ -19,12 +19,27 @@ const HasGlobalScopes = function () {
    * @param {Function} implementation
    */
   this.constructor.addGlobalScope = function (scope, implementation = null) {
-    if (scope instanceof String && (implementation !== null)) {
-      return this._globalScopes[this.name][scope] = implementation
+    if (_.isString(scope) && (implementation !== null)) {
+      return this._globalScopes = {
+        ...this._globalScopes,
+        [this.name]: {
+          [scope]: implementation
+        }
+      }
     } else if (scope instanceof Function) {
-      return this._globalScopes[this.name][hash(scope)] = scope
+      return this._globalScopes = {
+        ...this._globalScopes,
+        [this.name]: {
+          [hash(scope)]: scope
+        }
+      }
     } else if (scope instanceof Scope) {
-      return this._globalScopes[this.name][scope.constructor.name] = scope
+      return this._globalScopes = {
+        ...this._globalScopes,
+        [this.name]: {
+          [scope.constructor.name]: scope
+        }
+      }
     }
 
     throw new TypeError('Global scope must be an instance of Closure or Scope.')
@@ -47,7 +62,7 @@ const HasGlobalScopes = function () {
    * @param {Scope|String} scope
    */
   this.constructor.getGlobalScope = function (scope) {
-    if (scope instanceof String) {
+    if (_.isString(scope) ) {
       return _.get(this._globalScopes, this.name + '.' + scope)
     }
 
@@ -59,10 +74,10 @@ const HasGlobalScopes = function () {
   /**
    * Get the global scopes for this class instance.
    *
-   * @return array
+   * @return {Object}
    */
   this.getGlobalScopes = function () {
-    return _.get(this.constructor._globalScopes, this.constructor.name, [])
+    return _.get(this.constructor._globalScopes, this.constructor.name, {})
   }
 }
 

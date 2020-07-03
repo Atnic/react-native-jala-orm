@@ -388,7 +388,7 @@ class Relation {
    */
   clone()
   {
-    this._query = _.cloneDeep(this._query);
+    this._query = Object.create(Object.getPrototypeOf(this), Object.getOwnPropertyDescriptors(this));
   }
 }
 

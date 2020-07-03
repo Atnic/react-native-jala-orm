@@ -161,7 +161,7 @@ const HasAttributes = function () {
    * @param {Object} mutatedAttributes
    */
   this._addCastAttributesToArray = function (attributes, mutatedAttributes) {
-    _.forEach(this.getCasts()).forEach((value, key) => {
+    _.forEach(this.getCasts(), (value, key) => {
       if (!(key in attributes) || mutatedAttributes.includes(key)) {
         return
       }
@@ -195,7 +195,7 @@ const HasAttributes = function () {
    * @return {Object}
    */
   this._getArrayableAttributes = function () {
-    return this._getArrayableItems(this._attributes)
+    return this._getArrayableItems({...this._attributes})
   }
 
   /**
@@ -209,7 +209,7 @@ const HasAttributes = function () {
     }
 
     return this._getArrayableItems(
-      this._appends.flatMap((v) => {
+      _.flatMap(this._appends, (v) => {
         const append = {}
         append[v] = v
         return append
@@ -226,12 +226,19 @@ const HasAttributes = function () {
     const attributes = {}
     let relation
 
-    this._getArrayableRelations().forEach((value, key) => {
+    _.forEach(this._getArrayableRelations(), (value, key) => {
       // If the values implements the Arrayable interface we can just call this
       // toArray method on the instances which will convert both models and
       // collections to their proper array form and we'll set the values.
       if ('toArray' in value) {
         relation = value.toArray()
+      }
+      else if (value instanceof Array) {
+        relation = _.map(value, (v) => {
+          if ('toArray' in value)
+            return v.toArray()
+          return v
+        })
       }
 
       // If the value is null, we'll still go ahead and set it in this list of
@@ -267,7 +274,7 @@ const HasAttributes = function () {
    * @return {Object}
    */
   this._getArrayableRelations = function () {
-    return this._getArrayableItems(this._relations)
+    return this._getArrayableItems({...this._relations})
   }
 
   /**
@@ -560,7 +567,10 @@ const HasAttributes = function () {
       return this.fillJsonAttribute(key, value)
     }
 
-    this._attributes[key] = value
+    this._attributes = {
+      ...this._attributes,
+      [key]: value
+    }
 
     return this
   }
@@ -607,9 +617,12 @@ const HasAttributes = function () {
   this.fillJsonAttribute = function (key, value) {
     let path;
     [key, path] = key.split('->', 2)
-    this._attributes[key] = this._asJson(this._getArrayAttributeWithValue(
-      path, key, value
-    ))
+    this._attributes = {
+      ...this._attributes,
+      [key]: this._asJson(this._getArrayAttributeWithValue(
+        path, key, value
+      ))
+    }
 
     return this
   }
@@ -813,8 +826,8 @@ const HasAttributes = function () {
     const defaults = [this.constructor['CREATED_AT'], this.constructor['UPDATED_AT']]
 
     return this.usesTimestamps()
-      ? _.uniq(this._dates.concat(defaults))
-      : this._dates
+      ? _.uniq([...this._dates, ...defaults])
+      : [...this._dates]
   }
 
   /**
@@ -868,7 +881,7 @@ const HasAttributes = function () {
       }
     }
 
-    return this._casts
+    return {...this._casts}
   }
 
   /**
@@ -897,7 +910,7 @@ const HasAttributes = function () {
    * @return {Object}
    */
   this.getAttributes = function () {
-    return this._attributes
+    return {...this._attributes}
   }
 
   /**
@@ -925,7 +938,7 @@ const HasAttributes = function () {
    * @param {*|null} defaultValue
    */
   this.getOriginal = function (key = null, defaultValue = null) {
-    return key ? _.get(this._original, key, defaultValue) : this._original
+    return key ? _.get(this._original, key, defaultValue) : {...this._original}
   }
 
   /**
@@ -937,7 +950,7 @@ const HasAttributes = function () {
   this.only = function (attributes) {
     const results = {}
 
-    attributes = (attributes instanceof Array) ? attributes : arguments
+    attributes = (attributes instanceof Array) ? attributes : [...arguments]
     attributes.forEach((attribute) => {
       results[attribute] = this.getAttribute(attribute)
     })
@@ -977,7 +990,10 @@ const HasAttributes = function () {
     attributes = attributes instanceof Array ? attributes : [attributes];
 
     attributes.forEach((attribute) => {
-      this._original[attribute] = this._attributes[attribute];
+      this._original = {
+        ...this._original,
+        [attribute]: this._attributes[attribute]
+      };
     })
 
     return this;
@@ -989,7 +1005,7 @@ const HasAttributes = function () {
    * @return this
    */
   this.syncChanges = function () {
-    this._changes = this.getDirty()
+    this._changes = {...this.getDirty()}
 
     return this
   }
@@ -1001,7 +1017,7 @@ const HasAttributes = function () {
    * @param {Array|String|null} attributes
    */
   this.isDirty = function (attributes) {
-    if (attributes !== null) attributes = attributes instanceof Array ? attributes : arguments
+    if (attributes !== null) attributes = attributes instanceof Array ? attributes : [...arguments]
     return this._hasChanges(
       this.getDirty(), attributes
     )
@@ -1014,7 +1030,7 @@ const HasAttributes = function () {
    * @param {Array|String|null} attributes
    */
   this.isClean = function (attributes) {
-    if (attributes !== null) attributes = attributes instanceof Array ? attributes : arguments
+    if (attributes !== null) attributes = attributes instanceof Array ? attributes : [...arguments]
     return !this.isDirty(attributes)
   }
 
@@ -1025,7 +1041,7 @@ const HasAttributes = function () {
    * @param {Array|String|null} attributes
    */
   this.wasChanged = function (attributes) {
-    if (attributes !== null) attributes = attributes instanceof Array ? attributes : arguments
+    if (attributes !== null) attributes = attributes instanceof Array ? attributes : [...arguments]
     return this._hasChanges(
       this.getChanges(), attributes
     )
@@ -1081,7 +1097,7 @@ const HasAttributes = function () {
    * @return {Object}
    */
   this.getChanges = function () {
-    return this._changes
+    return {...this._changes}
   }
 
   /**
@@ -1122,7 +1138,7 @@ const HasAttributes = function () {
   this.append = function (attributes) {
     attributes = (attributes instanceof Array) ? attributes : [attributes]
     this._appends = _.uniq(
-      this._appends.concat(attributes)
+      [...this._appends, ...attributes]
     )
 
     return this

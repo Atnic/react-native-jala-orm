@@ -151,9 +151,9 @@ class Model {
   /**
    * The array of booted models.
    *
-   * @var {Array}
+   * @var {Object}
    */
-  static _booted = []
+  static _booted = {}
 
   /**
    * The array of global scopes on the model.
@@ -224,7 +224,10 @@ class Model {
    */
   _bootIfNotBooted () {
     if (!(this.constructor.name in this.constructor._booted)) {
-      this.constructor._booted[this.constructor.name] = true
+      this.constructor._booted = {
+        ...this.constructor._booted,
+        [this.constructor.name]: true
+      }
 
       this._fireModelEvent('booting', false)
 
@@ -251,7 +254,7 @@ class Model {
   static applyTrait (trait) {
     if (!this._traits || !this._traits.includes(trait)) {
       if (!this._traits) this._traits = []
-      this._traits.push(trait)
+      this._traits = [...this._traits, trait]
       trait.call(this.prototype)
     }
   }
@@ -260,7 +263,7 @@ class Model {
    * @returns {Array<Function>}
    */
   static getTraits () {
-    return this._traits
+    return [...this._traits]
   }
 
   /**
@@ -481,7 +484,7 @@ class Model {
    */
   static all (columns = ['*']) {
     return (new this()).newQuery().get(
-      (columns instanceof Array || columns instanceof Object) ? columns : arguments
+      (columns instanceof Array || columns instanceof Object) ? columns : [...arguments]
     )
   }
 
@@ -493,7 +496,7 @@ class Model {
    */
   static with (relations) {
     return (new this()).newQuery().with(
-      (relations instanceof String) ? arguments : relations
+      _.isString(relations) ? [...arguments] : relations
     )
   }
 
@@ -505,7 +508,7 @@ class Model {
    */
   load (relations) {
     let query = this.newQueryWithoutRelationships().with(
-      (relations instanceof String) ? arguments : relations
+      _.isString(relations) ? [...arguments] : relations
     )
 
     query.eagerLoadRelations([this]) // TODO
@@ -520,7 +523,7 @@ class Model {
    * @param {String|Array<String>} relations
    */
   loadMissing (relations) {
-    relations = (relations instanceof String) ? arguments : relations
+    relations = _.isString(relations) ? [...arguments] : relations
 
     return this.load(relations.filter((relation) => {
       return !this.relationLoaded(relation)
@@ -845,7 +848,7 @@ class Model {
     // type value or get this total count of records deleted for logging, etc.
     let count = 0
 
-    ids = ids instanceof Array ? ids : arguments
+    ids = ids instanceof Array ? ids : [...arguments]
 
     // We will actually pull the models from the database table and call delete on
     // each of them individually so that their events get fired properly with a
@@ -969,7 +972,7 @@ class Model {
    * @param {ModelBuilder} builder
    */
   registerGlobalScopes (builder) {
-    this.getGlobalScopes().forEach((scope, identifier) => {
+    _.forEach(this.getGlobalScopes(), (scope, identifier) => {
       builder.withGlobalScope(identifier, scope)
     })
 
@@ -1064,10 +1067,10 @@ class Model {
   /**
    * Convert the model instance to an array.
    *
-   * @return array
+   * @return {Object}
    */
   toArray () {
-    return this.attributesToArray().concat(this.relationsToArray())
+    return {...this.attributesToArray(), ...this.relationsToArray()}
   }
 
   /**
@@ -1107,7 +1110,7 @@ class Model {
     }
 
     return this.newQueryWithoutScopes()
-      .with(withs instanceof Array ? withs : arguments)
+      .with(withs instanceof Array ? withs : [...arguments])
       .where(this.getKeyName(), this.getKey())
       .first()
   }
@@ -1123,7 +1126,7 @@ class Model {
     }
 
     this.setRawAttributes(
-      this.newQueryWithoutScopes().findOrFail(this.getKey())._attributes
+      {...this.newQueryWithoutScopes().findOrFail(this.getKey())._attributes}
     )
 
     this.load(this._relations.filter((relation) => !relation['pivot']).keys().toArray())
@@ -1151,7 +1154,7 @@ class Model {
     return _.tap(new this(), (instance) => {
       instance.setRawAttributes(attributes)
 
-      instance.setRelations(this._relations)
+      instance.setRelations({...this._relations})
     })
   }
 
@@ -1491,8 +1494,14 @@ class Model {
    * @param {String} offset
    */
   offsetUnset (offset) {
-    delete this._attributes[offset]
-    delete this._relations[offset]
+    let attributes = {...this._attributes};
+    let relations = {...this._relations};
+
+    delete attributes[offset]
+    delete relations[offset]
+
+    this._attributes = {...attributes}
+    this._relations = {...relations};
   }
 
   /**
