@@ -1097,7 +1097,7 @@ class Builder {
    */
   _groupWhereSliceForScope(query, whereSlice)
   {
-    let whereBooleans = _.pluck(whereSlice, 'boolean');
+    let whereBooleans = _.map(whereSlice, (ws) => ws['boolean']);
 
     // Here we'll check if the given subset of where clauses contains any "or"
     // booleans and in this case create a nested where expression. That way

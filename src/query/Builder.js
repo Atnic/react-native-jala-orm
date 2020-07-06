@@ -72,7 +72,7 @@ class Builder extends BaseBuilder {
       return this.addArrayOfWheres(column, boolean)
     }
 
-    let { checkedValue, checkedOperator } = Builder.prepareValueAndOperator(
+    let [ checkedValue, checkedOperator ] = this.prepareValueAndOperator(
       value, operator, arguments.length === 2
     )
 
@@ -114,6 +114,27 @@ class Builder extends BaseBuilder {
     }
 
     return this
+  }
+
+  /**
+   * Prepare the value and operator for a where clause.
+   *
+   * @param  {String}  value
+   * @param  {String}  operator
+   * @param  {Boolean}  useDefault
+   * @return {Array}
+   *
+   * @throws Error
+   */
+  prepareValueAndOperator(value, operator, useDefault = false)
+  {
+    if (useDefault) {
+      return [operator, '='];
+    } else if (Builder.invalidOperatorAndValue(operator, value)) {
+      throw new Error('Illegal operator and value combination.');
+    }
+
+    return [value, operator];
   }
 
   /**

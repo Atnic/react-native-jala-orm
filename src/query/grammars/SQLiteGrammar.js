@@ -14,6 +14,62 @@ class SQLiteGrammar extends BaseSQLiteGrammar {
   /**
    *
    * @param query
+   * @param where
+   * @returns {string}
+   */
+  whereIn (query, where) {
+    if (where.values && where.values.length) {
+      return `${this.wrap(where.column)} in (${this.parameterize(where.values)})`
+    }
+
+    return '0 = 1'
+  }
+
+  /**
+   *
+   * @param query
+   * @param where
+   * @returns {string}
+   */
+  whereNotIn (query, where) {
+    if (where.values && where.values.length) {
+      return `${this.wrap(where.column)} not in (${this.parameterize(where.values)})`
+    }
+
+    return '1 = 1'
+  }
+
+  /**
+   *
+   * @param query
+   * @param where
+   * @returns {string}
+   */
+  whereNotInRaw (query, where) {
+    if (where.values && where.values.length) {
+      return `${this.wrap(where.column)} not in (${where.values.join(', ')})`
+    }
+
+    return '1 = 1'
+  }
+
+  /**
+   *
+   * @param query
+   * @param where
+   * @returns {string}
+   */
+  whereInRaw (query, where) {
+    if (where.values && where.values.length) {
+      return `${this.wrap(where.column)} in (${where.values.join(', ')})`
+    }
+
+    return '0 = 1'
+  }
+
+  /**
+   *
+   * @param query
    * @param offset
    * @returns {string}
    */
