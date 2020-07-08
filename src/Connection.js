@@ -744,7 +744,7 @@ class Connection {
    */
   _reconnectIfMissingConnection()
   {
-    if (_.isNull(this._pdo)) {
+    if (this._pdo == null) {
       this.reconnect();
     }
   }
@@ -873,7 +873,7 @@ class Connection {
    */
   getDoctrineConnection()
   {
-    if (_.isNull(this._doctrineConnection)) {
+    if (this._doctrineConnection == null) {
       let driver = this.getDoctrineDriver();
 
       this._doctrineConnection = new DoctrineConnection(_.filter({

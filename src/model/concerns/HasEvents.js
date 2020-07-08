@@ -189,7 +189,7 @@ const HasEvents = function () {
 
     const result = this.constructor._dispatcher[method](new this._dispatchesEvents[event](this))
 
-    if (!(result === null)) {
+    if (!(result == null)) {
       return result
     }
   }
@@ -203,7 +203,7 @@ const HasEvents = function () {
   this._filterModelEventResults = function (result) {
     if (result instanceof Array) {
       result = result.filter((response) => {
-        return !(response === null)
+        return !(response == null)
       })
     }
 

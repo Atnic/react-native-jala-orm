@@ -1,6 +1,6 @@
 import BaseBuilder from 'crane-query-builder/src/Builder'
 import { objectKey } from 'crane-query-builder/src/Utilities'
-import { isBoolean, isFunction, isNull, isString } from 'crane-query-builder/src/DataType'
+import { isBoolean, isFunction, isString } from 'crane-query-builder/src/DataType'
 import { Expression } from './Expression'
 
 /**
@@ -46,7 +46,7 @@ class Builder extends BaseBuilder {
     columns.forEach(column => {
       as = objectKey(column)
       if (isString(as) && (column instanceof Builder || isFunction(column))) {
-        if (isNull(this.columns)) {
+        if (this.columns == null) {
           this.select(`${this.from}.*`)
         }
         this.selectSub(column, as)
@@ -89,7 +89,7 @@ class Builder extends BaseBuilder {
       return this.whereSub(column, checkedOperator, checkedValue, boolean)
     }
 
-    if (isNull(checkedValue)) {
+    if (checkedValue == null) {
       return this.whereNull(column, boolean, checkedOperator !== '=')
     }
 

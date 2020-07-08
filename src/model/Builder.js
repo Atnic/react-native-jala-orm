@@ -299,7 +299,7 @@ class Builder {
    */
   latest(column = null)
   {
-    if (_.isNull(column)) {
+    if (column == null) {
       column = this._model.getCreatedAtColumn() ?? 'created_at';
     }
 
@@ -316,7 +316,7 @@ class Builder {
    */
   oldest(column = null)
   {
-    if (_.isNull(column)) {
+    if (column == null) {
       column = this._model.getCreatedAtColumn() || 'created_at';
     }
 
@@ -405,7 +405,7 @@ class Builder {
       if (result.length === _.uniq(id).length) {
         return result;
       }
-    } else if (! _.isNull(result)) {
+    } else if (! result == null) {
       return result;
     }
 
@@ -424,7 +424,7 @@ class Builder {
   findOrNew(id, columns = ['*'])
   {
     let model = this.find(id, columns);
-    if (! _.isNull(model)) {
+    if (! model == null) {
       return model;
     }
 
@@ -441,7 +441,7 @@ class Builder {
   firstOrNew(attributes, values = {})
   {
     let instance = this.where(attributes).first()
-    if (! _.isNull(instance)) {
+    if (! instance == null) {
       return instance;
     }
 
@@ -458,7 +458,7 @@ class Builder {
   firstOrCreate(attributes, values = {})
   {
     let instance = this.where(attributes).first()
-    if (! _.isNull(instance)) {
+    if (! (instance == null)) {
       return instance;
     }
 
@@ -492,7 +492,7 @@ class Builder {
   firstOrFail(columns = ['*'])
   {
     let model = this.first(columns)
-    if (! _.isNull(model)) {
+    if (! (model == null)) {
       return model;
     }
 
@@ -515,7 +515,7 @@ class Builder {
     }
 
     let model = this.first(columns)
-    if (! _.isNull(model)) {
+    if (! (model == null)) {
       return model;
     }
 
@@ -707,9 +707,9 @@ class Builder {
    */
   chunkById(count, callback, column = null, alias = null)
   {
-    column = _.isNull(column) ? this.getModel().getKeyName() : column;
+    column = (column == null) ? this.getModel().getKeyName() : column;
 
-    alias = _.isNull(alias) ? column : alias;
+    alias = (alias == null) ? column : alias;
 
     let lastId = null;
 
@@ -908,7 +908,7 @@ class Builder {
   _addUpdatedAtColumn(values)
   {
     if (! this._model.usesTimestamps() ||
-      _.isNull(this._model.getUpdatedAtColumn())) {
+      this._model.getUpdatedAtColumn() == null) {
       return values;
     }
 
@@ -1051,7 +1051,7 @@ class Builder {
     // We will keep track of how many wheres are on the query before running the
     // scope so that we can properly group the added scope constraints in the
     // query as their own isolated nested where statement and avoid issues.
-    let originalWhereCount = _.isNull(query.wheres)
+    let originalWhereCount = query.wheres == null
       ? 0 : query.wheres
 
     let result = scope(..._.values(parameters)) || this;

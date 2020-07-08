@@ -19,7 +19,7 @@ const HasGlobalScopes = function () {
    * @param {Function} implementation
    */
   this.constructor.addGlobalScope = function (scope, implementation = null) {
-    if (_.isString(scope) && (implementation !== null)) {
+    if (_.isString(scope) && !(implementation == null)) {
       return this._globalScopes = {
         ...this._globalScopes,
         [this.name]: {
@@ -52,7 +52,7 @@ const HasGlobalScopes = function () {
    * @param {Scope|Function} scope
    */
   this.constructor.hasGlobalScope = function (scope) {
-    return !(this.getGlobalScope(scope) === null)
+    return !(this.getGlobalScope(scope) == null)
   }
 
   /**

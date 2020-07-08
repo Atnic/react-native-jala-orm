@@ -339,7 +339,7 @@ class Relation {
    */
   static _buildMorphMapFromModels(models = null)
   {
-    if (models === null || models instanceof Object) {
+    if (models == null || models instanceof Object) {
       return models;
     }
 

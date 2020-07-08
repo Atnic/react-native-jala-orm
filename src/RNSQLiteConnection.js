@@ -61,7 +61,7 @@ class RNSQLiteConnection extends Connection {
    */
   getSchemaBuilder()
   {
-    if (_.isNull(this._schemaGrammar)) {
+    if (this._schemaGrammar == null) {
       this.useDefaultSchemaGrammar();
     }
 

@@ -37,11 +37,11 @@ const HasTimestamps = function () {
   this._updateTimestamps = function () {
     const time = this.freshTimestamp()
 
-    if (!(this.constructor.UPDATED_AT === null) && !this.isDirty(this.constructor.UPDATED_AT)) {
+    if (!(this.constructor.UPDATED_AT == null) && !this.isDirty(this.constructor.UPDATED_AT)) {
       this.setUpdatedAt(time)
     }
 
-    if (!this.exists && ! this.constructor.CREATED_AT === null && !this.isDirty(this.constructor.CREATED_AT)) {
+    if (!this.exists && ! this.constructor.CREATED_AT == null && !this.isDirty(this.constructor.CREATED_AT)) {
       this.setCreatedAt(time)
     }
   }

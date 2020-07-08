@@ -35,7 +35,7 @@ class ConnectionResolver {
    * @param {String|null} name
    */
   connection (name = null) {
-    if (name === null) {
+    if (name == null) {
       name = this.getDefaultConnection()
     }
 

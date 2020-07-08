@@ -873,7 +873,7 @@ class Model {
    * @throws \Exception
    */
   delete () {
-    if (this.getKeyName() === null) {
+    if (this.getKeyName() == null) {
       throw new Error('No primary key defined on model.')
     }
 
@@ -1165,7 +1165,7 @@ class Model {
    * @param  {Model|null}  model
    */
   is (model) {
-    return !(model === null) &&
+    return !(model == null) &&
       this.getKey() === model.getKey() &&
       this.getTable() === model.getTable() &&
       this.getConnectionName() === model.getConnectionName()
@@ -1463,7 +1463,7 @@ class Model {
    * @param offset
    */
   offsetExists (offset) {
-    return !(this.getAttribute(offset) === null)
+    return !(this.getAttribute(offset) == null)
   }
 
   /**

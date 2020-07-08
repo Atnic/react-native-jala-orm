@@ -244,7 +244,7 @@ const HasAttributes = function () {
       // If the value is null, we'll still go ahead and set it in this list of
       // attributes since null is used to represent empty relationships if
       // if it a has one or belongs to type relationships on the models.
-      else if (value === null) {
+      else if (value == null) {
         relation = value
       }
 
@@ -353,7 +353,7 @@ const HasAttributes = function () {
     // instance on retrieval, which makes it quite convenient to work with
     // date fields without having to create a mutator for each property.
     if (this.getDates().includes(key) &&
-      !(value === null)) {
+      !(value == null)) {
       return this._asDateTime(value)
     }
 
@@ -405,7 +405,7 @@ const HasAttributes = function () {
     const relation = this[method]()
 
     if (!(relation instanceof Relation)) {
-      if (relation === null) {
+      if (relation == null) {
         throw new Error(`${method} must return a relationship instance, but "null" was returned. Was the "return" keyword used`)
       }
       throw new Error(`${method} must return a relationship instance.`)
@@ -458,7 +458,7 @@ const HasAttributes = function () {
    * @param value
    */
   this._castAttribute = function (key, value) {
-    if (value === null) {
+    if (value == null) {
       return value
     }
 
@@ -556,7 +556,7 @@ const HasAttributes = function () {
       value = this.fromDateTime(value)
     }
 
-    if (this._isJsonCastable(key) && !(value === null)) {
+    if (this._isJsonCastable(key) && !(value == null)) {
       value = this._castAttributeAsJson(key, value)
     }
 
@@ -1017,7 +1017,7 @@ const HasAttributes = function () {
    * @param {Array|String|null} attributes
    */
   this.isDirty = function (attributes) {
-    if (attributes !== null) attributes = attributes instanceof Array ? attributes : [...arguments]
+    if (attributes != null) attributes = attributes instanceof Array ? attributes : [...arguments]
     return this._hasChanges(
       this.getDirty(), attributes
     )
@@ -1030,7 +1030,7 @@ const HasAttributes = function () {
    * @param {Array|String|null} attributes
    */
   this.isClean = function (attributes) {
-    if (attributes !== null) attributes = attributes instanceof Array ? attributes : [...arguments]
+    if (attributes != null) attributes = attributes instanceof Array ? attributes : [...arguments]
     return !this.isDirty(attributes)
   }
 
@@ -1041,7 +1041,7 @@ const HasAttributes = function () {
    * @param {Array|String|null} attributes
    */
   this.wasChanged = function (attributes) {
-    if (attributes !== null) attributes = attributes instanceof Array ? attributes : [...arguments]
+    if (attributes != null) attributes = attributes instanceof Array ? attributes : [...arguments]
     return this._hasChanges(
       this.getChanges(), attributes
     )
@@ -1116,7 +1116,7 @@ const HasAttributes = function () {
 
     if (current === original) {
       return true
-    } else if (current === null) {
+    } else if (current == null) {
       return false
     } else if (this._isDateAttribute(key)) {
       return this.fromDateTime(current) === this.fromDateTime(original)
