@@ -117,6 +117,24 @@ class Builder extends BaseBuilder {
   }
 
   /**
+   * Add a raw "order by" clause to the query.
+   *
+   * @param sql
+   * @param bindings
+   * @returns {Builder}
+   */
+  orderByRaw (sql, bindings = []) {
+    const type = 'Raw'
+    const orderType = this.unions ? 'unionOrders' : 'orders'
+
+    this[orderType] = [...this[orderType], { type, sql }]
+
+    this.addBinding(bindings, 'order')
+
+    return this
+  }
+
+  /**
    * Prepare the value and operator for a where clause.
    *
    * @param  {String}  value
