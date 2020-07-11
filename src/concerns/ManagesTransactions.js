@@ -16,8 +16,7 @@ const ManagesTransactions = function () {
    *
    * @throws {Error}
    */
-  this.transaction = function (callback, attempts = 1)
-  {
+  this.transaction = async function (callback, attempts = 1) {
     for (let currentAttempt = 1; currentAttempt <= attempts; currentAttempt++) {
       this.beginTransaction();
 
@@ -25,7 +24,7 @@ const ManagesTransactions = function () {
       // catch any exception we can rollback this transaction so that none of this
       // gets actually persisted to a database or stored in a permanent fashion.
       try {
-        return _.tap(callback(this), () => {
+        return _.tap(await callback(this), () => {
           this.commit();
         });
       }

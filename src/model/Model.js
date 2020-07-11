@@ -614,8 +614,8 @@ class Model {
    *
    * @return {Boolean}
    */
-  push () {
-    if (!this.save()) {
+  async push () {
+    if (!(await this.save())) {
       return false
     }
 
@@ -642,7 +642,7 @@ class Model {
    * @return {Boolean}
    * @param {Object} options
    */
-  save (options = {}) {
+  async save (options = {}) {
     let query = this.newModelQuery()
 
     // If the "saving" event returns false we'll bail out of the save and return
@@ -658,14 +658,14 @@ class Model {
     // clause to only update this model. Otherwise, we'll just insert them.
     if (this.exists) {
       saved = this.isDirty() ?
-        this._performUpdate(query) : true
+        (await this._performUpdate(query)) : true
     }
 
     // If the model is brand new, we'll insert it into our database and set the
     // ID attribute on the model to the value of the newly inserted row's ID
     // which is typically an auto-increment value managed by the database.
     else {
-      saved = this._performInsert(query)
+      saved = (await this._performInsert(query))
       let connection = query.getConnection()
 
       if (!this.getConnectionName() && connection) {
@@ -692,8 +692,8 @@ class Model {
    * @param {Object} options
    */
   saveOrFail (options = {}) {
-    return this.getConnection().transaction(() => {
-      return this.save(options)
+    return this.getConnection().transaction(async () => {
+      return (await this.save(options))
     })
   }
 
@@ -719,7 +719,7 @@ class Model {
    * @return {Boolean}
    * @param {ModelBuilder} query
    */
-  _performUpdate (query) {
+  async _performUpdate (query) {
     // If the updating event returns false, we will cancel the update operation so
     // developers can hook Validation systems into their models and cancel this
     // operation if the model does not pass validation. Otherwise, we update.
@@ -740,7 +740,7 @@ class Model {
     let dirty = this.getDirty()
 
     if (!_.isEmpty(dirty)) {
-      this._setKeysForSaveQuery(query).update(dirty)
+      await this._setKeysForSaveQuery(query).update(dirty)
 
       this._fireModelEvent('updated', false)
 
@@ -778,7 +778,7 @@ class Model {
    * @return {Boolean}
    * @param {ModelBuilder} query
    */
-  _performInsert (query) {
+  async _performInsert (query) {
     if (this._fireModelEvent('creating') === false) {
       return false
     }
@@ -796,7 +796,7 @@ class Model {
     let attributes = this.getAttributes()
 
     if (this.getIncrementing()) {
-      this._insertAndSetId(query, attributes)
+      await this._insertAndSetId(query, attributes)
     }
 
     // If the table isn't incrementing we'll simply insert these attributes as they
