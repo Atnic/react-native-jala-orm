@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import BaseSQLiteGrammar from 'crane-query-builder/src/SQLiteGrammar'
 
 class SQLiteGrammar extends BaseSQLiteGrammar {
@@ -89,6 +90,18 @@ class SQLiteGrammar extends BaseSQLiteGrammar {
     }
 
     return ''
+  }
+
+  /**
+   *
+   * @param query
+   * @returns {string|*}
+   */
+  compileDelete (query) {
+    if (_.isEmpty(query.joins) || _.isEmpty(query.limit)) {
+      return this.compileDeleteWithJoinsOrLimit(query)
+    }
+    return super.compileDelete(query)
   }
 
   /**
