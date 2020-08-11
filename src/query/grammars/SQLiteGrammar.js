@@ -98,7 +98,7 @@ class SQLiteGrammar extends BaseSQLiteGrammar {
    * @returns {string|*}
    */
   compileDelete (query) {
-    if (_.isEmpty(query.joins) || _.isEmpty(query.limit)) {
+    if (!_.isEmpty(query.joins) || !_.isEmpty(query.limit)) {
       return this.compileDeleteWithJoinsOrLimit(query)
     }
     return super.compileDelete(query)

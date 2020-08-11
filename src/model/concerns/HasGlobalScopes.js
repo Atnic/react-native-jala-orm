@@ -23,6 +23,7 @@ const HasGlobalScopes = function () {
       return this._globalScopes = {
         ...this._globalScopes,
         [this.name]: {
+          ...this._globalScopes[this.name],
           [scope]: implementation
         }
       }
@@ -30,6 +31,7 @@ const HasGlobalScopes = function () {
       return this._globalScopes = {
         ...this._globalScopes,
         [this.name]: {
+          ...this._globalScopes[this.name],
           [hash(scope)]: scope
         }
       }
@@ -37,6 +39,7 @@ const HasGlobalScopes = function () {
       return this._globalScopes = {
         ...this._globalScopes,
         [this.name]: {
+          ...this._globalScopes[this.name],
           [scope.constructor.name]: scope
         }
       }

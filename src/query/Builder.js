@@ -18,6 +18,18 @@ class Builder extends BaseBuilder {
   }
 
   /**
+   * Set the columns to be selected.
+   *
+   * @param columns
+   * @returns {Builder}
+   */
+  select (columns = ['*']) {
+    this.columns = columns instanceof Array ? columns : [...arguments];
+
+    return this
+  }
+
+  /**
    * Add a new "raw" select expression to the query.
    *
    * @param expression
@@ -177,6 +189,39 @@ class Builder extends BaseBuilder {
     return this.selectRaw(
       `(${checkedQuery}) as ${this.grammar.wrap(as)}`, bindings
     )
+  }
+
+  /**
+   * Creates a subquery and parse it.
+   *
+   * @param query
+   * @returns {[*, *]|[*, []]}
+   */
+  static createSub (query) {
+    if (isFunction(query)) {
+      const callback = query
+      callback(query = this.forSubQuery())
+    }
+
+    return this.parseSub(query)
+  }
+
+  /**
+   * Create a new query instance for a sub-query.
+   *
+   * @returns {Builder}
+   */
+  static forSubQuery () {
+    return this.newQuery()
+  }
+
+  /**
+   * Get a new instance of the query builder.
+   *
+   * @returns {Builder}
+   */
+  static newQuery () {
+    return new this()
   }
 
   /**
