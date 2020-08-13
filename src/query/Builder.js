@@ -30,6 +30,20 @@ class Builder extends BaseBuilder {
   }
 
   /**
+   * Add a subselect expression to the query.
+   *
+   * @param query
+   * @param as
+   * @returns {Builder}
+   */
+  selectSub (query, as) {
+    const [ checkedQuery, bindings ] = Builder.createSub(query)
+    return this.selectRaw(
+      `(${checkedQuery}) as ${this.grammar.wrap(as)}`, bindings
+    )
+  }
+
+  /**
    * Add a new "raw" select expression to the query.
    *
    * @param expression
@@ -46,6 +60,21 @@ class Builder extends BaseBuilder {
   }
 
   /**
+   * Creates a subquery and parse it.
+   *
+   * @param query
+   * @returns {[*, *]|[*, []]}
+   */
+  static createSub (query) {
+    if (isFunction(query)) {
+      const callback = query
+      callback(query = this.forSubQuery())
+    }
+
+    return this.parseSub(query)
+  }
+
+  /**
    * Add a new select column to the query.
    *
    * @param column
@@ -53,19 +82,19 @@ class Builder extends BaseBuilder {
    */
   addSelect (column) {
     const columns = Array.isArray(column) ? column : [...arguments]
-    let as = null
 
-    columns.forEach(column => {
-      as = objectKey(column)
-      if (isString(as) && (column instanceof Builder || isFunction(column))) {
-        if (this.columns == null) {
-          this.select(`${this.from}.*`)
-        }
-        this.selectSub(column, as)
-      } else {
-        this.columns = [...this.columns, column]
-      }
-    })
+    this.columns = [...this.columns, ...columns]
+
+    return this
+  }
+
+  /**
+   * Force the query to only return distinct results.
+   *
+   * @returns {Builder}
+   */
+  setDistinct (): Builder {
+    this.distinct = true;
 
     return this
   }
@@ -129,6 +158,99 @@ class Builder extends BaseBuilder {
   }
 
   /**
+   * Prepare the value and operator for a where clause.
+   *
+   * @param  {String}  value
+   * @param  {String}  operator
+   * @param  {Boolean}  useDefault
+   * @return {Array}
+   *
+   * @throws Error
+   */
+  prepareValueAndOperator(value, operator, useDefault = false) {
+    if (useDefault) {
+      return [operator, '='];
+    } else if (Builder.invalidOperatorAndValue(operator, value)) {
+      throw new Error('Illegal operator and value combination.');
+    }
+
+    return [value, operator];
+  }
+
+  /**
+   * Add an exists clause to the query.
+   *
+   * @param  {Function} callback
+   * @param  {String}   boolean
+   * @param  {Boolean}     not
+   * @return this
+   */
+  whereExists(callback: Function, boolean = 'and', not = false) {
+    const query = this.constructor.forSubQuery();
+
+    // Similar to the sub-select clause, we will create a new query instance so
+    // the developer may cleanly specify the entire exists query and we will
+    // compile the whole thing in the grammar and insert it into the SQL.
+    callback(query);
+
+    return this.addWhereExistsQuery(query, boolean, not);
+  }
+
+  /**
+   * Add an or exists clause to the query.
+   *
+   * @param  {Function} callback
+   * @param  {Boolean}     not
+   * @return {Builder}
+   */
+  orWhereExists(callback: Function, not = false)
+  {
+    return this.whereExists(callback, 'or', not);
+  }
+
+  /**
+   * Add a where not exists clause to the query.
+   *
+   * @param  {Function} callback
+   * @param  {String}   boolean
+   * @return {Builder}
+   */
+  whereNotExists(callback: Function, boolean = 'and')
+  {
+    return this.whereExists(callback, boolean, true);
+  }
+
+  /**
+   * Add a where not exists clause to the query.
+   *
+   * @param  {Function}  callback
+   * @return {Builder}
+   */
+  orWhereNotExists(callback: Function)
+  {
+    return this.orWhereExists(callback, true);
+  }
+
+  /**
+   * Add an exists clause to the query.
+   *
+   * @param  {Builder} query
+   * @param  {String}  boolean
+   * @param  {Boolean}  not
+   * @return this
+   */
+  addWhereExistsQuery(query, boolean = 'and', not = false)
+  {
+    const type = not ? 'NotExists' : 'Exists';
+
+    this.wheres = [...this.wheres, { type, query, boolean }];
+
+    this.addBinding(query.getBindings(), 'where');
+
+    return this;
+  }
+
+  /**
    * Add a raw "order by" clause to the query.
    *
    * @param sql
@@ -147,24 +269,21 @@ class Builder extends BaseBuilder {
   }
 
   /**
-   * Prepare the value and operator for a where clause.
+   * Get a new instance of the query builder.
    *
-   * @param  {String}  value
-   * @param  {String}  operator
-   * @param  {Boolean}  useDefault
-   * @return {Array}
-   *
-   * @throws Error
+   * @returns {Builder}
    */
-  prepareValueAndOperator(value, operator, useDefault = false)
-  {
-    if (useDefault) {
-      return [operator, '='];
-    } else if (Builder.invalidOperatorAndValue(operator, value)) {
-      throw new Error('Illegal operator and value combination.');
-    }
+  static newQuery () {
+    return new this()
+  }
 
-    return [value, operator];
+  /**
+   * Create a new query instance for a sub-query.
+   *
+   * @returns {Builder}
+   */
+  static forSubQuery () {
+    return this.newQuery()
   }
 
   /**
@@ -178,70 +297,11 @@ class Builder extends BaseBuilder {
   }
 
   /**
-   * Add a subselect expression to the query.
-   *
-   * @param query
-   * @param as
-   * @returns {Builder}
-   */
-  selectSub (query, as) {
-    const [ checkedQuery, bindings ] = Builder.createSub(query)
-    return this.selectRaw(
-      `(${checkedQuery}) as ${this.grammar.wrap(as)}`, bindings
-    )
-  }
-
-  /**
-   * Creates a subquery and parse it.
-   *
-   * @param query
-   * @returns {[*, *]|[*, []]}
-   */
-  static createSub (query) {
-    if (isFunction(query)) {
-      const callback = query
-      callback(query = this.forSubQuery())
-    }
-
-    return this.parseSub(query)
-  }
-
-  /**
-   * Create a new query instance for a sub-query.
-   *
-   * @returns {Builder}
-   */
-  static forSubQuery () {
-    return this.newQuery()
-  }
-
-  /**
-   * Get a new instance of the query builder.
-   *
-   * @returns {Builder}
-   */
-  static newQuery () {
-    return new this()
-  }
-
-  /**
-   * Force the query to only return distinct results.
-   *
-   * @returns {Builder}
-   */
-  setDistinct (): Builder {
-    this.distinct = true;
-
-    return this
-  }
-
-  /**
    * Get the database connection instance.
    *
    * @return {Connection}
    */
-  getConnection()
-  {
+  getConnection() {
     return this.connection;
   }
 
@@ -254,8 +314,7 @@ class Builder extends BaseBuilder {
    *
    * @throws {Error}
    */
-  __call(method, parameters)
-  {
+  __call(method, parameters) {
     // if (this.constructor.hasMacro(method)) {
     //   return this.macroCall(method, parameters);
     // }
