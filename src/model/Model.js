@@ -807,7 +807,7 @@ class Model {
         return true
       }
 
-      query.insert(attributes)
+      await query.insert(attributes)
     }
 
     // We will go ahead and set the exists property to true, so that it is set when
@@ -829,9 +829,9 @@ class Model {
    * @param {ModelBuilder} query
    * @param {Object} attributes
    */
-  _insertAndSetId (query, attributes) {
+  async _insertAndSetId (query, attributes) {
     let keyName = this.getKeyName()
-    let id = query.insertGetId(attributes, keyName) // TODO
+    let id = await query.insertGetId(attributes, keyName)
 
     this.setAttribute(keyName, id)
   }
@@ -842,7 +842,7 @@ class Model {
    * @return int
    * @param {Array|String|Number} ids
    */
-  static destroy (ids) {
+  static async destroy (ids) {
     // We'll initialize a count here so we will return the total number of deletes
     // for the operation. The developers can then check this number as a boolean
     // type value or get this total count of records deleted for logging, etc.
@@ -856,11 +856,11 @@ class Model {
     let instance = (new this())
     let key = instance.getKeyName()
 
-    instance.whereIn(key, ids).get().forEach((model) => {
-      if (model.delete()) {
+    await Promise.all(instance.whereIn(key, ids).get().map((model) => (async () => {
+      if (await model.delete()) {
         count++
       }
-    })
+    })()))
 
     return count
   }
@@ -872,7 +872,7 @@ class Model {
    *
    * @throws \Exception
    */
-  delete () {
+  async delete () {
     if (this.getKeyName() == null) {
       throw new Error('No primary key defined on model.')
     }
@@ -893,7 +893,7 @@ class Model {
     // by the timestamp. Then we will go ahead and delete the model instance.
     this.touchOwners()
 
-    this._performDeleteOnModel()
+    await this._performDeleteOnModel()
 
     // Once the model has been deleted, we will fire off the deleted event so that
     // the developers may hook into post-delete operations. We will then return
@@ -919,8 +919,8 @@ class Model {
    *
    * @return void
    */
-  _performDeleteOnModel () {
-    this._setKeysForSaveQuery(this.newModelQuery()).delete()
+  async _performDeleteOnModel () {
+    await this._setKeysForSaveQuery(this.newModelQuery()).delete()
 
     this.exists = false
   }
