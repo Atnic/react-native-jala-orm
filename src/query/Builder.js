@@ -60,6 +60,22 @@ class Builder extends BaseBuilder {
   }
 
   /**
+   * Add a raw where clause to the query.
+   *
+   * @param sql
+   * @param bindings
+   * @param boolean
+   * @return this
+   */
+  whereRaw (sql, bindings = [], boolean = 'and') {
+    this.wheres = [...this.wheres, { type: 'Raw', sql, boolean }]
+
+    this.addBinding(bindings, 'where')
+
+    return this
+  }
+
+  /**
    * Creates a subquery and parse it.
    *
    * @param query
@@ -136,7 +152,7 @@ class Builder extends BaseBuilder {
 
     let type = 'Basic'
 
-    if (column.includes('->') && isBoolean(value)) {
+    if (column.includes && column.includes('->') && isBoolean(value)) {
       checkedValue = new Expression(value ? 'true' : 'false')
       if (isString(column)) {
         type = 'JsonBoolean'
@@ -251,6 +267,25 @@ class Builder extends BaseBuilder {
   }
 
   /**
+   * Add a "having between " clause to the query.
+   *
+   * @param column
+   * @param values
+   * @param boolean
+   * @param not
+   * @returns {Builder}
+   */
+  havingBetween (column, values, boolean = 'and', not = false) {
+    const type = 'Between'
+
+    this.havings = [...this.havings, { type, column, values, boolean, not }]
+
+    this.addBinding(this.cleanBindings(values), 'having')
+
+    return this
+  }
+
+  /**
    * Add a raw "order by" clause to the query.
    *
    * @param sql
@@ -266,6 +301,21 @@ class Builder extends BaseBuilder {
     this.addBinding(bindings, 'order')
 
     return this
+  }
+
+  /**
+   *
+   * @param parentQuery
+   * @param type
+   * @param table
+   */
+  createJoinClause (parentQuery, type, table) {
+    const builder = new (this.constructor)()
+    builder.clause = 'join'
+    builder.type = type
+    builder.table = table
+    builder.parentClass = parentQuery.constructor.name
+    return builder
   }
 
   /**
