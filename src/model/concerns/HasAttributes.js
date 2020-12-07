@@ -230,12 +230,12 @@ const HasAttributes = function () {
       // If the values implements the Arrayable interface we can just call this
       // toArray method on the instances which will convert both models and
       // collections to their proper array form and we'll set the values.
-      if ('toArray' in (value || {})) {
+      if (value instanceof Object && 'toArray' in (value || {})) {
         relation = value.toArray()
       }
       else if (value instanceof Array) {
         relation = _.map(value, (v) => {
-          if ('toArray' in (v || {}))
+          if (v instanceof Object && 'toArray' in (v || {}))
             return v.toArray()
           return v
         })
@@ -447,7 +447,7 @@ const HasAttributes = function () {
   this._mutateAttributeForArray = function (key, value) {
     value = this._mutateAttribute(key, value)
 
-    return 'toArray' in (value || {}) ? value.toArray() : value
+    return value instanceof Object && 'toArray' in (value || {}) ? value.toArray() : value
   }
 
   /**
@@ -1192,7 +1192,7 @@ const HasAttributes = function () {
   this.constructor._getMutatorMethods = function (name) {
     return (Object.getOwnPropertyNames(this.prototype).join(';').match(/(^|;)get([^;]+?)Attribute(;|$)/gi) || []).map((m) => {
       return m.match(/(^|;)get([^;]+?)Attribute(;|$)/)
-    }).map((m) => m[1])
+    }).map((m) => m[2])
   }
 }
 
