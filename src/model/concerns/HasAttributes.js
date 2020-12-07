@@ -208,13 +208,11 @@ const HasAttributes = function () {
       return {}
     }
 
-    return this._getArrayableItems(
-      _.flatMap(this._appends, (v) => {
-        const append = {}
-        append[v] = v
-        return append
-      })
-    )
+    const _appends = {};
+    _.forEach(this._appends, (v) => {
+      _appends[v] = v
+    })
+    return this._getArrayableItems(_appends)
   }
 
   /**
