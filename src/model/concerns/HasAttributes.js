@@ -235,7 +235,7 @@ const HasAttributes = function () {
       }
       else if (value instanceof Array) {
         relation = _.map(value, (v) => {
-          if ('toArray' in (value || {}))
+          if ('toArray' in (v || {}))
             return v.toArray()
           return v
         })
