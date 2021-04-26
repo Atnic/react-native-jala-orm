@@ -26,7 +26,7 @@ class RNSQLiteConnection extends Connection {
     super(pdo, database, tablePrefix, config)
     Database.Connection = RNSQLiteConnection
     Database.Grammar = SQLiteGrammar
-    Database.database = Database.Connection.connect({
+    Database.database = Database.database || Database.Connection.connect({
       driver: SQLite,
       name: 'Jala.db',
       location: 'default',
