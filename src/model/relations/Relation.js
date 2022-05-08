@@ -55,7 +55,7 @@ class Relation {
   {
     this._query = query;
     this._parent = parent;
-    this.related = query['getModel']();
+    this._related = query['getModel']();
 
     this.addConstraints();
   }
@@ -263,7 +263,7 @@ class Relation {
    */
   getRelated()
   {
-    return this.related;
+    return this._related;
   }
 
   /**
@@ -293,7 +293,7 @@ class Relation {
    */
   relatedUpdatedAt()
   {
-    return this.related.getUpdatedAtColumn();
+    return this._related.getUpdatedAtColumn();
   }
 
   /**

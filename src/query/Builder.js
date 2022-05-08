@@ -1,7 +1,7 @@
 import BaseBuilder from 'crane-query-builder/src/Builder'
 import { objectKey } from 'crane-query-builder/src/Utilities'
 import { isBoolean, isFunction, isString } from 'crane-query-builder/src/DataType'
-import { Expression } from './Expression'
+import Expression from './Expression'
 
 /**
  * @mixin

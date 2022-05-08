@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import Expression from './query/Expression'
 
-class Grammar {
+export default class Grammar {
   /**
    * The grammar table prefix.
    *

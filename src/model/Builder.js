@@ -540,7 +540,7 @@ class Builder {
    * Execute the query as a "select" statement.
    *
    * @param  {Array|Object}  columns
-   * @return {Array}
+   * @return {Promise<Array>}
    */
   async get (columns = ['*']) {
     let builder = this.applyScopes();
@@ -560,7 +560,7 @@ class Builder {
    * Get the hydrated models without eager loading.
    *
    * @param  {Array}  columns
-   * @return {Array<Model>}
+   * @return {Promise<Array<Model>>}
    */
   async getModels (columns = ['*']) {
     return this.hydrate(
@@ -841,7 +841,7 @@ class Builder {
   create(attributes = [])
   {
     return _.tap(this.newModelInstance(attributes), (instance) => {
-      instance.save();
+      instance.save().catch();
     });
   }
 

@@ -197,7 +197,7 @@ class Connection {
    */
   useDefaultSchemaGrammar()
   {
-    this.schemaGrammar = this._getDefaultSchemaGrammar();
+    this._schemaGrammar = this._getDefaultSchemaGrammar();
   }
 
   /**

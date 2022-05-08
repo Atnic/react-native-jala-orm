@@ -9,7 +9,7 @@ import HidesAttributes from './concerns/HidesAttributes'
 import GuardsAttributes from './concerns/GuardsAttributes'
 import { ModelBuilder } from './Builder'
 import { QueryBuilder } from '../query/Builder'
-import { MassAssignmentError } from './MassAssignmentError'
+import MassAssignmentError from './MassAssignmentError'
 import ConnectionResolver from '../ConnectionResolver'
 import RNSQLiteConnection from '../RNSQLiteConnection'
 
@@ -612,7 +612,7 @@ class Model {
   /**
    * Save the model and all of its relationships.
    *
-   * @return {Boolean}
+   * @return {Promise<Boolean>}
    */
   async push () {
     if (!(await this.save())) {
@@ -639,7 +639,7 @@ class Model {
   /**
    * Save the model to the database.
    *
-   * @return {Boolean}
+   * @return {Promise<Boolean>}
    * @param {Object} options
    */
   async save (options = {}) {
@@ -716,7 +716,7 @@ class Model {
   /**
    * Perform a model update operation.
    *
-   * @return {Boolean}
+   * @return {Promise<Boolean>}
    * @param {ModelBuilder} query
    */
   async _performUpdate (query) {
@@ -775,7 +775,7 @@ class Model {
   /**
    * Perform a model insert operation.
    *
-   * @return {Boolean}
+   * @return {Promise<Boolean>}
    * @param {ModelBuilder} query
    */
   async _performInsert (query) {
