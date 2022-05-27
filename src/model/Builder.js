@@ -758,23 +758,22 @@ class Builder {
    *
    * @param  {String}  column
    * @param  {String|null}  key
-   * @return {Array}
+   * @return {Promise<any>}
    */
-  pluck(column, key = null)
-  {
-    let results = this.toBase().pluck(column, key);
+  async pluck (column, key = null) {
+    let results = await this.toBase().pluck(column, key);
 
     // If the model has a mutator for the requested column, we will spin through
     // the results and mutate the values so that the mutated version of these
     // columns are returned as you would expect from these Eloquent models.
-    if (! this._model.hasGetMutator(column) &&
-    ! this._model.hasCast(column) &&
-    ! this._model.getDates().includes(column)) {
+    if (!this._model.hasGetMutator(column) &&
+      !this._model.hasCast(column) &&
+      !this._model.getDates().includes(column)) {
       return results;
     }
 
     return _.map(results, (value) => {
-      return this._model.newFromBuilder({[column]: value})[column];
+      return this._model.newFromBuilder({ [column]: value })[column];
     });
   }
 

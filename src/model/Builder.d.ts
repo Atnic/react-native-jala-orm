@@ -1,14 +1,15 @@
 import Model from "./Model";
 import Scope from "./Scope";
 import Relation from "./relations/Relation";
-import { QueryBuilder } from "../query/Builder";
+import QueryBuilder from "../query/Builder";
+import BaseQueryBuilder from "../query/BaseBuilder";
 
 /**
  * @mixes QueryBuilder
  * @mixes BuildsQueries
  * @mixin
  */
-export default class Builder {
+export default class Builder extends QueryBuilder {
     /**
      * All of the globally registered builder macros.
      *
@@ -154,14 +155,14 @@ export default class Builder {
      * @param  {String}  column
      * @return {Builder}
      */
-    latest(column?: string): Builder;
+    latest(column?: string): BaseQueryBuilder & Builder;
     /**
      * Add an "order by" clause for a timestamp to the query.
      *
      * @param  {String}  column
      * @return {Builder}
      */
-    oldest(column?: string): Builder;
+    oldest(column?: string): BaseQueryBuilder & Builder;
     /**
      * Create a collection of models from plain arrays.
      *
@@ -338,9 +339,9 @@ export default class Builder {
      *
      * @param  {String}  column
      * @param  {String|null}  key
-     * @return {Array}
+     * @return {Promise<any>}
      */
-    pluck(column: string, key?: string | null): any[];
+    pluck(column: string, key?: string | null): Promise<any>;
     /**
      * Paginate the given query.
      *

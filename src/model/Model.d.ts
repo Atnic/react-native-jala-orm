@@ -2,6 +2,15 @@ import ConnectionResolver from "../ConnectionResolver";
 import Connection from "../Connection";
 import { ModelBuilder } from "./Builder";
 import { QueryBuilder } from "../query/Builder";
+import HasOne from "./relations/HasOne";
+import MorphOne from "./relations/MorphOne";
+import BelongsTo from "./relations/BelongsTo";
+import MorphTo from "./relations/MorphTo";
+import HasMany from "./relations/HasMany";
+import HasManyThrough from "./relations/HasOneThrough";
+import MorphMany from "./relations/MorphMany";
+import BelongsToMany from "./relations/BelongsToMany";
+import MorphToMany from "./relations/MorphToMany";
 
 /**
  * @mixes HasAttributes
@@ -792,6 +801,126 @@ export default class Model {
      * @return void
      */
     __wakeup(): void;
+
+    /** HasAttributes */
+    _original: any;
+    _changes: any;
+    _casts: any;
+    _dates: any[];
+    _dateFormat: string;
+    _appends: any[]
+    attributesToArray: () => any;
+    _addDateAttributesToArray: (attributes: any) => any;
+    _addMutatedAttributesToArray: (attributes: any) => any;
+    _addCastAttributesToArray: (attributes: any, mutatedAttributes: any) => any;
+    _getArrayableAttributes: (attributes: any, mutatedAttributes: any) => any;
+    _getArrayableAppends: () => any;
+    relationsToArray: () => any;
+    _getArrayableRelations: () => any;
+    _getArrayableItems: () => any;
+    getAttribute: (key: string) => any;
+    getAttributeValue: (key: string) => any;
+    _getAttributeFromArray: (key: string) => any;
+    getRelationValue: (key: string) => any;
+    _getRelationshipFromMethod: (method: string) => any;
+    hasGetMutator: (key: string) => boolean;
+    _mutateAttribute: (key: string, value: any) => any;
+    _mutateAttributeForArray: (key: string, value: any) => any;
+    _castAttribute: (key: string, value: any) => any;
+    _getCastType: (key: string) => any;
+    _isCustomDateTimeCast: (cast: string) => boolean;
+    _isDecimalCast: (cast: string) => boolean;
+    setAttribute: (key: string, value: any) => Model;
+    hasSetMutator: (key: string) => boolean;
+    _setMutatedAttributeValue: (key: string, value: any) => any;
+    _isDateAttribute: (key: string) => boolean;
+    fillJsonAttribute: (key: string, value: any) => Model;
+    _getArrayAttributeWithValue: (path: string, key: string, value: any) => any;
+    _getArrayAttributeByKey: (key: string, value: any) => any;
+    _castAttributeAsJson: (key: string, value: any) => any;
+    _asJson: (value: any) => string;
+    fromJson: (value: any, asObject?: boolean) => string;
+    fromFloat: (value: any) => number;
+    _asDecimal: (value: number) => string;
+    _asDate: (value: any) => any;
+    _asDateTime: (value: any) => any;
+    _isStandardDateFormat: (value: any) => boolean;
+    fromDateTime: (value: any) => string;
+    _asTimestamp: (value: any) => number;
+    _serializeDate: (value: any) => string;
+    getDates: () => any[];
+    _getDateFormat: () => string;
+    setDateFormat: (format: string) => Model;
+    hasCast: (key: string, types?: any[]) => boolean;
+    getCasts: () => any;
+    _isDateCastable: (key: string) => boolean;
+    _isJsonCastable: (key: string) => boolean;
+    getAttributes: () => any;
+    setRawAttributes: (attributes: any, sync?: boolean) => Model;
+    getOriginal: () => any;
+    only: (attributes: string[]) => any;
+    syncOriginal: () => Model;
+    syncOriginalAttribute: (attribute: string) => Model;
+    syncOriginalAttributes: (attributes: string | string[]) => Model;
+    syncChanges: () => Model;
+    isDirty: (attributes: string[] | string | null) => boolean;
+    isClean: (attributes: string[] | string | null) => boolean;
+    wasChanged: (attributes: string[] | string | null) => boolean;
+    _hasChanges: (changes: any, attributes?: string[] | string | null) => boolean;
+    getDirty: () => any;
+    getChanges: () => any;
+    _originalIsEquivalent: (key: string, current: any) => boolean;
+    append: (attributes: string[] | string) => Model;
+    setAppends: (appends: string[]) => Model;
+    getMutatedAttributes: () => any;
+
+    static snakeAttributes: boolean;
+    static _mutatorCache: any;
+    static cacheMutatedAttributes: (name: string) => void;
+    static _getMutatorMethods: (name: string) => any[];
+
+    /** HasRelationships */
+    _touches: any[];
+    hasOne: (related: Model, foreignKey?: string, localKey?: string) => HasOne
+    _newHasOne: (query: ModelBuilder, parent: Model, foreignKey: string, localKey: string) => HasOne
+    morphOne: (related: Model, name: string, type?: string, id?: string, localKey?: string) => MorphOne
+    _newMorphOne: (query: ModelBuilder, parent: Model, type: string, id: string, localKey: string) => MorphOne
+    belongsTo: (related: Model, foreignKey?: string, ownerKey?: string, relation?: string) => BelongsTo
+    _newBelongsTo: (query: ModelBuilder, child: Model, foreignKey?: string, ownerKey?: string, relation?: string) => BelongsTo
+    morphTo: (related: Model, name: string, type?: string, id?: string, localKey?: string) => MorphTo
+    _morphEagerTo: (name: string, type: string, id: string|number) => MorphTo
+    _morphInstanceTo: (target: string, name: string, type: string, id: string|number) => MorphTo
+    _newMorphTo: (query: ModelBuilder, parent: Model, foreignKey: string, ownerKey: string, type: string, relation: string) => MorphTo
+    _guessBelongsToRelation: () => string
+    hasMany: (related: Model, foreignKey?: string, localKey?: string) => HasMany
+    _newHasMany: (query: ModelBuilder, parent: Model, foreignKey: string, localKey: string) => HasMany
+    hasManyThrough: (related: Model, through: string, firstKey?: string, secondKey?: string, localKey?: string, secondLocalKey?: string) => HasMany
+    _newHasManyThrough: (query: ModelBuilder, farParent: Model, throughParent: Model, firstKey: string, secondKey: string, localKey: string, secondLocalKey: string) => HasManyThrough
+    morphMany: (related: Model, name: string, type?: string, id?: string, localKey?: string) => MorphMany
+    _newMorphMany: (query: ModelBuilder, parent: Model, type: string, id: string, localKey: string) => MorphMany
+    belongsToMany: (related: Model, table?: string, foreignPivotKey?: string, relatedPivotKey?: string, parentKey?: string, relatedKey?: string, relation?: string) => BelongsToMany
+    _newBelongsToMany: (query: ModelBuilder, parent: Model, table: string, foreignPivotKey: string, relatedPivotKey: string, parentKey: string, relatedKey: string, relation: string) => BelongsToMany
+    morphToMany: (related: Model, name: string, table?: string, foreignPivotKey?: string, relatedPivotKey?: string, parentKey?: string, relatedKey?: string, inverse?: boolean) => MorphToMany
+    _newMorphToMany: (query: ModelBuilder, parent: Model, name: string, table: string, foreignPivotKey: string, relatedPivotKey: string, parentKey: string, relatedKey: string, inverse: boolean) => MorphToMany
+    _guessBelongsToManyRelation: () => string
+    joiningTable: (related: Model, instance?: Model) => string
+    joiningTableSegment: () => string
+    touches: (relation: string) => boolean
+    touchOwners: () => void
+    _getMorphs: (name: string, type: string, id: string) => any[]
+    getMorphClass: () => string
+    _newRelatedInstance: (related: Model) => Model
+    getRelations: () => any
+    getRelation: (relation: string) => any
+    relationLoaded: (key: string) => boolean
+    setRelation: (relation: string, value: any) => Model
+    unsetRelation: (relation: string) => Model
+    setRelations: (relations: any) => Model
+    getTouchedRelations: () => any[]
+    setTouchedRelations: () => Model
+
+    static manyMethods: any[]
+    static getActualClassNameForMorph: () => string
 }
 
 export function ModelProxy(cls: any): any;
