@@ -185,7 +185,7 @@ export default class Builder extends QueryBuilder {
      * @param  {Array}  columns
      * @return {Model|Array<Model>|null}
      */
-    find(id: number | string, columns?: any[]): Model | Array<Model> | null;
+    find(id: number | string, columns?: any[]): Promise<Model|Array<Model>|null>;
     /**
      * Find multiple models by their primary keys.
      *
@@ -193,7 +193,7 @@ export default class Builder extends QueryBuilder {
      * @param  {Array|Object}  columns
      * @return {Array}
      */
-    findMany(ids: any[], columns?: any[] | any): any[];
+    findMany(ids: any[], columns?: any[] | any): Promise<any[]>;
     /**
      * Find a model by its primary key or throw an exception.
      *
@@ -203,7 +203,7 @@ export default class Builder extends QueryBuilder {
      *
      * @throws {Model}NotFoundException
      */
-    findOrFail(id: number | string, columns?: any[]): Model;
+    findOrFail(id: number | string, columns?: any[]): Promise<Model>;
     /**
      * Find a model by its primary key or return fresh model instance.
      *
@@ -211,7 +211,7 @@ export default class Builder extends QueryBuilder {
      * @param  {Array}  columns
      * @return {Model}
      */
-    findOrNew(id: number | string, columns?: any[]): Model;
+    findOrNew(id: number | string, columns?: any[]): Promise<Model>;
     /**
      * Get the first record matching the attributes or instantiate it.
      *
@@ -219,7 +219,7 @@ export default class Builder extends QueryBuilder {
      * @param  {Object}  values
      * @return {Model}
      */
-    firstOrNew(attributes: any, values?: any): Model;
+    firstOrNew(attributes: any, values?: any): Promise<Model>;
     /**
      * Get the first record matching the attributes or create it.
      *
@@ -227,7 +227,7 @@ export default class Builder extends QueryBuilder {
      * @param  {Object}  values
      * @return {Model}
      */
-    firstOrCreate(attributes: any, values?: any): Model;
+    firstOrCreate(attributes: any, values?: any): Promise<Model>;
     /**
      * Create or update a record matching the attributes, and fill it with values.
      *
@@ -235,7 +235,7 @@ export default class Builder extends QueryBuilder {
      * @param  {Object}  values
      * @return {Model}
      */
-    updateOrCreate(attributes: any, values?: any): Model;
+    updateOrCreate(attributes: any, values?: any): Promise<Model>;
     /**
      * Execute the query and get the first result or throw an exception.
      *
@@ -244,7 +244,7 @@ export default class Builder extends QueryBuilder {
      *
      * @throws {Model}NotFoundException
      */
-    firstOrFail(columns?: any[] | any): Model;
+    firstOrFail(columns?: any[] | any): Promise<Model>;
     /**
      * Execute the query and get the first result or call a callback.
      *
@@ -252,7 +252,7 @@ export default class Builder extends QueryBuilder {
      * @param  {Function|null}  callback
      * @return {Model|*}
      */
-    firstOr(columns?: Function | any[], callback?: Function | null): Model | any;
+    firstOr(columns?: Function | any[], callback?: Function | null): Promise<Model> | any;
     /**
      * Get a single column's value from the first result of a query.
      *
@@ -370,14 +370,14 @@ export default class Builder extends QueryBuilder {
      * @param  {Object}  attributes
      * @return {Model}
      */
-    create(attributes?: any): Model;
+    create(attributes?: any): Promise<Model>;
     /**
      * Save a new model and return the instance. Allow mass-assignment.
      *
      * @param  {Object}  attributes
      * @return {Model}
      */
-    forceCreate(attributes: any): Model;
+    forceCreate(attributes: any): Promise<Model>;
     /**
      * Update a record in the database.
      *
